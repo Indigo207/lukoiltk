@@ -1,15 +1,17 @@
 from aiogram import Dispatcher, types, F
 from aiogram.filters import Command
+from aiogram.methods import DeleteWebhook
 from init import bot
 from keyboards import kb_main,kb_info,kb_awards
 from texts import *
-import asyncio, logging, rating,day,week
+import asyncio, logging, rating,day,week,lk
 from aiogram.fsm.storage.memory import MemoryStorage
 dp = Dispatcher(bot=bot, storage=MemoryStorage())
 logging.basicConfig(level=logging.INFO)
 dp.include_router(rating.rt)
 dp.include_router(day.rt)
 dp.include_router(week.rt)
+dp.include_router(lk.rt)
 keyboard_award=types.ReplyKeyboardMarkup(keyboard=kb_awards,resize_keyboard=True)
 keyboard = types.ReplyKeyboardMarkup(keyboard=kb_main,resize_keyboard=True)
 keyboard_info = types.ReplyKeyboardMarkup(keyboard=kb_info,resize_keyboard=True)
@@ -40,6 +42,7 @@ async def contacts(message: types.Message):
 async def contacts(message: types.Message):
     await message.answer("Выберите тип премии", reply_markup=keyboard_award)
 async def main():
+    await bot(DeleteWebhook(drop_pending_updates=True))
     await dp.start_polling(bot)
 
 if __name__ == "__main__":

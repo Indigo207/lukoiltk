@@ -4,29 +4,23 @@ from aiogram.fsm.state import StatesGroup, State
 from keyboards import kb_cancel, kb_main, keyboard_choise
 from init import bot
 from aiogram.types import InputMediaPhoto
+from lk import lk
 rt=Router()
 id_u=None
 keyboard = types.ReplyKeyboardMarkup(keyboard=kb_main,resize_keyboard=True)
 keyboard_cn = types.ReplyKeyboardMarkup(keyboard=kb_cancel,resize_keyboard=True)
 class States(StatesGroup):
-    nick_w=State()
     screen_w=State()
     screen_week= State()
     rate_w=State()
-    bank_w=State()
 @rt.message(F.text == "⏪ Отмена")
 async def cmd_cancel(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer("Вы вернулись в главное меню", reply_markup=keyboard)
 
 @rt.message(F.text == "Топ недели")
-async def nick(message: types.Message, state: FSMContext):
-    await message.answer("Введите ваш NickName", reply_markup=keyboard_cn)
-    await state.set_state(States.nick_w)
-@rt.message(States.nick_w)
 async def screen(message: types.Message, state: FSMContext):
-    await state.update_data(nick=message.text)
-    await message.answer("Пришлите скриншот вашей личной карточки с /time")
+    await message.answer("Пришлите скриншот вашей личной карточки с /time",reply_markup=keyboard_cn)
     await state.set_state(States.screen_w)
 @rt.message(States.screen_w)
 async def screen(message: types.Message, state: FSMContext):
@@ -47,19 +41,17 @@ async def screen(message: types.Message, state: FSMContext):
 @rt.message(States.rate_w)
 async def rate(message: types.Message, state: FSMContext):
     await state.update_data(rate=message.text)
-    await message.answer("Введите номер вашего банковского счёта")
-    await state.set_state(States.bank_w)
-@rt.message(States.bank_w)
-async def rate(message: types.Message, state: FSMContext):
-    await state.update_data(bank=message.text)
     global id_u
     id_u = message.from_user.id
     user_data = await state.get_data()
+    if message.from_user.username==None:
+        user=message.from_user.first_name
+    else: user="@"+message.from_user.username
     media =[InputMediaPhoto(media=user_data['screen']), InputMediaPhoto(media=user_data['screen_day'],caption=
-                                                       f"1.NickName: {user_data['nick']}\n"
+                                                       f"1.NickName: {lk.get_nick(id_u)}\n"
                                                        f"2.Количество рейтинга: {user_data['rate']}\n"
-                                                       f"3.Счёт в банке: {user_data['bank']}\n"
-                                                       f"4.Контакт отправившего: @{message.from_user.username}\n"
+                                                       f"3.Счёт в банке: {lk.get_bank(id_u)}\n"
+                                                       f"4.Контакт отправившего: {user}\n"
                                                        f"5.Тип премии: топ недели\n")
     ]
     await bot.send_media_group(media=media,chat_id="-1002047550383")
