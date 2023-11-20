@@ -1,5 +1,6 @@
 from aiogram import Dispatcher, types, F
-from aiogram.filters import Command
+from aiogram.types import ChatMemberUpdated
+from aiogram.filters import Command, IS_MEMBER, IS_NOT_MEMBER, ChatMemberUpdatedFilter
 from aiogram.methods import DeleteWebhook
 from init import bot
 from keyboards import kb_main,kb_info,kb_awards
@@ -21,7 +22,15 @@ async def start(message: types.Message):
 @dp.message(F.text=="ℹ️ Информация")
 async def info(message: types.Message):
     await message.answer(info_t, reply_markup=keyboard_info)
-
+@dp.chat_member(ChatMemberUpdatedFilter(IS_NOT_MEMBER >> IS_MEMBER))
+async def on_user_join(event: ChatMemberUpdated):
+    await event.answer(f"Привет, {event.new_chat_member.user.first_name}!\n"
+                       f"Я - бот транспортной компании Лукойл на сервере Владикавказ!"
+                       f"Если ты с Чебоксар, то ошибся чатом ¯\_(ツ)_/\n"
+                       f"С информацией о премиях можно ознакомится в https://t.me/lukoiltk_bot\n"
+                       f"Там же можно подать заявку на премию, но перед этим не забудь создать личный кабинет!\n"
+                       f"Это можно сделать, нажав на кнопку 'Личный кабинет'\n"
+                       f"Спасибо за прочтение")
 @dp.message(F.text=="🆕 Новости")
 async def news(message: types.Message):
     await message.answer(news_t,parse_mode="HTML")

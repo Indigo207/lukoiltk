@@ -58,13 +58,11 @@ async def rate(message: types.Message, state: FSMContext):
     await bot.send_message(text="Одобрить заявку сверху?",chat_id="-1002047550383", reply_markup=keyboard_choise)
     await state.clear()
     await message.answer("Ваша заявка отправлена на обработку. Ожидайте",reply_markup=keyboard)
-
 @rt.callback_query(F.data == 'rejection')
 async def reject(callback: types.CallbackQuery):
     await callback.answer()
     await callback.message.edit_text("❌Вы отклонили заявку")
     await bot.send_message(text="❌Ваша заявка получила отказ. Если вы не согласны с решением, напишите нам по контактам", chat_id=id_u)
-
 @rt.callback_query(F.data == 'approved')
 async def approv(callback: types.CallbackQuery):
     await callback.answer()
